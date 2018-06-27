@@ -81,7 +81,7 @@ export default class RouteHandler {
         let message = (typeOf(e) === 'string') ? e : e.message;
         let error = new MirageError(`Your ${request.method} handler for the url ${request.url} threw an error: ${message}`);
 
-        result = new Response(500, {}, error.message);
+        result = new Response(500, this._getResponseHeaders(), error.message);
       }
     }
 
@@ -97,7 +97,7 @@ export default class RouteHandler {
           mirageResponse = result;
         } else {
           let code = this._getCodeForResponse(response);
-          mirageResponse = new Response(code, {}, response);
+          mirageResponse = new Response(code, this._getResponseHeaders(), response);
         }
         resolve(mirageResponse);
       });
@@ -116,6 +116,14 @@ export default class RouteHandler {
       }
     }
     return code;
+  }
+
+  _getResponseHeaders() {
+    if (this.handler.options && this.handler.options.responseContentType) {
+      return { "Content-Type": this.handler.options.responseContentType };
+    } else {
+      return {};
+    }
   }
 
   serialize(mirageResponsePromise, request) {

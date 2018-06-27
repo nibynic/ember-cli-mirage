@@ -167,6 +167,7 @@ export default class Server {
     this.timing = this.timing || config.timing || 400;
     this.namespace = this.namespace || config.namespace || '';
     this.urlPrefix = this.urlPrefix || config.urlPrefix || '';
+    this.responseContentType = this.responseContentType || config.responseContentType;
     this.trackRequests = config.trackRequests;
 
     this._defineRouteHandlerHelpers();
@@ -498,6 +499,9 @@ export default class Server {
     [['get'], ['post'], ['put'], ['delete', 'del'], ['patch'], ['head'], ['options']].forEach(([verb, alias]) => {
       this[verb] = (path, ...args) => {
         let [ rawHandler, customizedCode, options ] = extractRouteArguments(args);
+        if (!options.responseContentType && this.responseContentType) {
+          options.responseContentType = this.responseContentType;
+        }
         return this._registerRouteHandler(verb, path, rawHandler, customizedCode, options);
       };
 
